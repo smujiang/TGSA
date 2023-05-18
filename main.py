@@ -19,7 +19,7 @@ def arg_parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default=42,
                         help='seed')
-    parser.add_argument('--device', type=str, default='cuda:6',
+    parser.add_argument('--device', type=str, default='cuda:1',
                         help='device')
     parser.add_argument('--model', type=str, default='TGDRP', help='Name of the model')
     parser.add_argument('--batch_size', type=int, default=128,
@@ -48,20 +48,25 @@ def arg_parse():
                         help='train or test')
     return parser.parse_args()
 
+from torch_geometric.data import Data
+
 
 def main():
     args = arg_parse()
+
     set_random_seed(args.seed)
 
     drug_dict = np.load('./data/Drugs/drug_feature_graph.npy', allow_pickle=True).item()
     cell_dict = np.load('./data/CellLines_DepMap/CCLE_580_18281/census_706/cell_feature_all.npy',
                         allow_pickle=True).item()
+
     edge_index = np.load('./data/CellLines_DepMap/CCLE_580_18281/census_706/edge_index_PPI_{}.npy'.format(args.edge))
     IC = pd.read_csv('./data/PANCANCER_IC_82833_580_170.csv')
 
     train_loader, val_loader, test_loader = load_data(IC, drug_dict, cell_dict, edge_index, args)
     print(len(IC), len(train_loader.dataset), len(val_loader.dataset), len(test_loader.dataset))
     print('mean degree:{}'.format(len(edge_index[0]) / 706))
+    print(cell_dict.get('ACH-000986'))
     args.num_feature = cell_dict['ACH-000001'].x.shape[1]
     genes_path = './data/CellLines_DepMap/CCLE_580_18281/census_706'
     edge_index = get_STRING_graph(genes_path, args.edge)

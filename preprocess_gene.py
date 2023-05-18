@@ -96,9 +96,8 @@ def save_cell_graph(genes_path, save_path):
         # cell_dict[i] = [np.array(exp.loc[i], dtype=np.float32), np.array(cn.loc[i], dtype=np.float32),
         #                 np.array(mu.loc[i], dtype=np.float32)]
 
-    np.save(os.path.join(save_path, 'cell_feature_cn_std.npy'), cell_dict)
+    np.save(os.path.join(save_path, 'cell_feature_all.npy'), cell_dict)
     print("finish saving cell mut data!")
-
 
 def get_STRING_graph(genes_path, thresh=0.95):
     save_path = os.path.join(genes_path, 'edge_index_PPI_{}.npy'.format(thresh))
@@ -135,7 +134,7 @@ def get_STRING_graph(genes_path, thresh=0.95):
         # print(len(gene_list))
         # print(thresh, len(edge_index[0]) / len(gene_list))
         np.save(
-            os.path.join('./data/CellLines_DepMap/CCLE_580_18281/census_706/', 'edge_index_PPI_{}.npy'.format(thresh)),
+            os.path.join(gene_path, 'edge_index_PPI_{}.npy'.format(thresh)),
             edge_index)
     else:
         edge_index = np.load(save_path)
@@ -168,3 +167,4 @@ if __name__ == '__main__':
     save_path = './data/CellLines_DepMap/CCLE_580_18281/census_706'
     # get_genes_graph(gene_path,save_path, thresh=0.53)
     save_cell_graph(gene_path, save_path)
+    #save_cell_graph_all(gene_path, save_path)
