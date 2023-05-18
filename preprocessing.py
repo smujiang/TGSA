@@ -33,7 +33,7 @@ def save_drug2graph(dg_smiles_df):
     np.save('./benchmark_dataset_generator/csa_data/drug_feature_graph.npy', drug_dict)
     return drug_dict
 
-
+###########################################################################################
 # download data
 candle.file_utils.get_file(fname=resp_fn, origin=os.path.join(y_dir, resp_fn),
                            datadir="./benchmark_dataset_generator/csa_data/raw_data",
@@ -50,11 +50,14 @@ candle.file_utils.get_file(fname=cn_fn, origin=os.path.join(x_dir, cn_fn),
 candle.file_utils.get_file(fname=drug_smile_fn, origin=os.path.join(x_dir, drug_smile_fn),
                            datadir="./benchmark_dataset_generator/csa_data/raw_data",
                            cache_subdir="x_data")
-
-# exp_df = load_gene_expression_data(gene_system_identifier="Gene_Symbol")
-# cn_df = load_copy_number_data(gene_system_identifier="Gene_Symbol")
-# mu_df = load_mutation_data(gene_system_identifier="Gene_Symbol")
 ##########################################################################################
+def save_drug2graph(dg_smiles_df, save_to):
+    drug_dict = {}
+    for i in range(len(dg_smiles_df)):
+        drug_dict[dg_smiles_df.iloc[i, 0]] = smiles2graph(dg_smiles_df.iloc[i, 1])
+    np.save(save_to, drug_dict)
+    return drug_dict
+
 drug_smile = load_smiles_data()
 dr_df = load_single_drug_response_data(source="y_data")
 dr_df.set_index('improve_chem_id')
@@ -62,10 +65,16 @@ drug_smile.set_index('improve_chem_id')
 merge_1 = pd.merge(dr_df, drug_smile)
 
 # save drug_feature_graph.npy
-save_drug2graph(drug_smile)
-###########################################################################################
+save_to_fn = './benchmark_dataset_generator/csa_data/drug_feature_graph.npy'
+save_drug2graph(drug_smile, save_to_fn)
 
+###########################################################################################
 # TODO: save cell_feature_all.npy
+# exp_df = load_gene_expression_data(gene_system_identifier="Gene_Symbol")
+# cn_df = load_copy_number_data(gene_system_identifier="Gene_Symbol")
+# mu_df = load_mutation_data(gene_system_identifier="Gene_Symbol")
+
+###########################################################################################
 
 
 
