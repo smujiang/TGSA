@@ -50,6 +50,17 @@ candle.file_utils.get_file(fname=cn_fn, origin=os.path.join(x_dir, cn_fn),
 candle.file_utils.get_file(fname=drug_smile_fn, origin=os.path.join(x_dir, drug_smile_fn),
                            datadir="./benchmark_dataset_generator/csa_data/raw_data",
                            cache_subdir="x_data")
+
+STRING_links = "https://stringdb-static.org/download/protein.links.v11.5.txt.gz"
+candle.file_utils.get_file(fname='protein.links.v11.5.txt.gz', origin=STRING_links,
+                           datadir="./benchmark_dataset_generator/csa_data/raw_data",
+                           cache_subdir="x_data")
+
+STRING_links_details = "https://stringdb-static.org/download/protein.links.detailed.v11.5.txt.gz"
+candle.file_utils.get_file(fname='protein.links.detailed.v11.5.txt.gz', origin=STRING_links_details,
+                           datadir="./benchmark_dataset_generator/csa_data/raw_data",
+                           cache_subdir="x_data")
+
 ##########################################################################################
 def save_drug2graph(dg_smiles_df, save_to):
     drug_dict = {}
@@ -58,24 +69,34 @@ def save_drug2graph(dg_smiles_df, save_to):
     np.save(save_to, drug_dict)
     return drug_dict
 
+
 drug_smile = load_smiles_data()
 dr_df = load_single_drug_response_data(source="y_data")
-dr_df.set_index('improve_chem_id')
-drug_smile.set_index('improve_chem_id')
-merge_1 = pd.merge(dr_df, drug_smile)
+save_to_fn = './benchmark_dataset_generator/csa_data/drug_feature_graph.npy'
 
 # save drug_feature_graph.npy
-save_to_fn = './benchmark_dataset_generator/csa_data/drug_feature_graph.npy'
-save_drug2graph(drug_smile, save_to_fn)
+if not os.path.exists(save_to_fn):
+    save_drug2graph(drug_smile, save_to_fn)
 
+merge_1 = pd.merge(drug_smile, dr_df, how='inner', on='improve_chem_id')
+# selected drugs
+selected_drugs = list(set(merge_1["improve_chem_id"]))
+
+improve_sample_id = list(set(dr_df['improve_sample_id']))
 ###########################################################################################
 # TODO: save cell_feature_all.npy
-# exp_df = load_gene_expression_data(gene_system_identifier="Gene_Symbol")
-# cn_df = load_copy_number_data(gene_system_identifier="Gene_Symbol")
-# mu_df = load_mutation_data(gene_system_identifier="Gene_Symbol")
+exp_df = load_gene_expression_data(gene_system_identifier="Gene_Symbol")
+# cn_df = load_copy_number_data(gene_system_identifier="Entrez")
+# mu_df = load_mutation_data(gene_system_identifier="Entrez")
+
+exp_df = pd.read_csv(improve_globals.gene_expression_file_path, sep="\t", nrows=100, index_col=0, skiprows=0)
+cn_df = pd.read_csv(improve_globals.copy_number_file_path, sep="\t", nrows=100, index_col=0, skiprows=0)
+mu_df = pd.read_csv(improve_globals.gene_mutation_file_path, sep="\t", nrows=100, index_col=0, skiprows=0)
 
 ###########################################################################################
 
+
+merge_2 = pd.merge(merge_1, dr_df, how='inner', on='improve_chem_id')
 
 
 
