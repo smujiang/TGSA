@@ -5,12 +5,12 @@ import torch
 import torch.nn as nn
 import numpy as np
 import pandas as pd
-from utils import load_data
+from utils import load_IMPROVE_data
 from utils import EarlyStopping, set_random_seed
 from utils import train, validate
 from preprocess_gene import get_STRING_graph, get_predefine_cluster
 from models.TGDRP import TGDRP
-
+import pickle
 import argparse
 import fitlog
 
@@ -50,19 +50,26 @@ def arg_parse():
     return parser.parse_args()
 
 def get_data_loader(edge, setup, model, batch_size):
-    drug_dict = np.load('./data/Drugs/drug_feature_graph.npy', allow_pickle=True).item()
-    cell_dict = np.load('./data/CellLines_DepMap/CCLE_580_18281/census_706/cell_feature_all.npy',
-                        allow_pickle=True).item()
+    fp = open("/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator/csa_data/drug_feature_graph.pkl", "rb")
+    drug_dict = pickle.load(fp)
+    fp.close()
 
-    edge_index = np.load('./data/CellLines_DepMap/CCLE_580_18281/census_706/edge_index_PPI_{}.npy'.format(edge))
-    IC = pd.read_csv('./data/PANCANCER_IC_82833_580_170.csv')
+    edge_index = np.load('/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator/csa_data/edge_index_PPI_{}.npy'.format(edge))
 
-    train_loader, val_loader, test_loader = load_data(IC, drug_dict, cell_dict, edge_index, setup, model, batch_size)
+    fp = open("/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator/csa_data/cell_feature_all.pkl", "rb")
+    cell_dict = pickle.load(fp)
+    fp.close()
+
+
+    # edge_index = np.load('/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator/csa_data/edge_index_PPI_{}.npy'.format(edge))
+    IC = pd.read_csv('/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator/csa_data/raw_data/y_data/response.txt', sep="\t")
+
+    train_loader, val_loader, test_loader = load_IMPROVE_data(IC, drug_dict, cell_dict, edge_index, setup, model, batch_size)
     print(len(IC), len(train_loader.dataset), len(val_loader.dataset), len(test_loader.dataset))
     print('mean degree:{}'.format(len(edge_index[0]) / 706))
     print(cell_dict['ACH-000986'])
     num_feature = cell_dict['ACH-000001'].x.shape[1]
-    return train_loader, val_loader, test_loader
+    return train_loader, val_loader, test_loader, edge_index
 
 def get_cluster_predefine(edge, device, genes_path = './data/CellLines_DepMap/CCLE_580_18281/census_706'):
     edge_index = get_STRING_graph(genes_path, edge)
@@ -74,8 +81,13 @@ def main():
     args.mode = 'train'
     set_random_seed(args.seed)
 
-    train_loader, val_loader, test_loader = get_data_loader(args.edge, args.setup, args.model, args.batch_size)
-    cluster_predefine = get_cluster_predefine(args.edge, args.device)
+    save_path = "/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator/csa_data"
+
+    train_loader, val_loader, test_loader, edge_index = get_data_loader(args.edge, args.setup, args.model, args.batch_size)
+
+    predefine_cluster_fn = os.path.join(save_path, 'cluster_predefine_PPI_{}.npy'.format(args.edge))
+    cluster_predefine = get_predefine_cluster(edge_index, predefine_cluster_fn, args.edge, args.device)
+    # cluster_predefine = get_cluster_predefine(args.edge, args.device)
 
 
     model = TGDRP(cluster_predefine, args).to(args.device)

@@ -63,7 +63,7 @@ def main():
     edge_index = np.load('./data/CellLines_DepMap/CCLE_580_18281/census_706/edge_index_PPI_{}.npy'.format(args.edge))
     IC = pd.read_csv('./data/PANCANCER_IC_82833_580_170.csv')
 
-    train_loader, val_loader, test_loader = load_data(IC, drug_dict, cell_dict, edge_index, args)
+    train_loader, val_loader, test_loader = load_data(IC, drug_dict, cell_dict, edge_index, args, model="TGDRP", batch_size=16)
     print(len(IC), len(train_loader.dataset), len(val_loader.dataset), len(test_loader.dataset))
     print('mean degree:{}'.format(len(edge_index[0]) / 706))
     print(cell_dict.get('ACH-000986'))
