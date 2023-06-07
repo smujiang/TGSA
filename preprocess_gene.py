@@ -141,11 +141,17 @@ def get_STRING_graph(genes_path, edge_fn='./benchmark_dataset_generator/csa_data
 
     return edge_index
 
-
-def get_predefine_cluster(edge_index, save_path, thresh, device):
+'''
+# Added by Jun Jiang 
+why not use this?
+# predefine cluster 
+# "https://stringdb-static.org/download/clusters.proteins.v11.5/9606.clusters.proteins.v11.5.txt.gz"
+# "https://stringdb-static.org/download/clusters.info.v11.5/9606.clusters.info.v11.5.txt.gz"
+'''
+def get_predefine_cluster(edge_index, save_path, thresh, device, selected_gene_num=706):
     save_path = os.path.join(save_path, 'cluster_predefine_PPI_{}.npy'.format(thresh))
     if not os.path.exists(save_path):
-        g = Data(edge_index=torch.tensor(edge_index, dtype=torch.long), x=torch.zeros(706, 1))
+        g = Data(edge_index=torch.tensor(edge_index, dtype=torch.long), x=torch.zeros(selected_gene_num, 1))
         g = Batch.from_data_list([g])
         cluster_predefine = {}
         for i in range(5):
