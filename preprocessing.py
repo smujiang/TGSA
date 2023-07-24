@@ -8,7 +8,10 @@ import gzip
 import shutil
 import pickle
 import torch
+import time
 from torch_geometric.data import Data
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
 
 '''
 # Running notes
@@ -17,20 +20,23 @@ from torch_geometric.data import Data
 # 2. While, active "TGSA" for model training and inference (PyTorch < 1.7.1 because of torch-geometric)
 '''
 
-ftp_origin = "https://ftp.mcs.anl.gov/pub/candle/public/improve/benchmarks/single_drug_drp/csa_data"
+REGENERATE_ALL = True
+
+mut_fn = improve_globals.gene_mutation_fname
+exp_fn = improve_globals.gene_expression_fname
+cn_fn = improve_globals.copy_number_fname
+resp_fn = improve_globals.y_file_name
+drug_smile_fn = improve_globals.smiles_file_name
+
+data_root_dir = improve_globals.main_data_dir
+
+if improve_globals.DATASET == "Pilot1":
+    ftp_origin = "https://ftp.mcs.anl.gov/pub/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/raw_data"
+else:
+    ftp_origin = "https://ftp.mcs.anl.gov/pub/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-imp-2023"
+
 x_dir = os.path.join(ftp_origin, "x_data")
 y_dir = os.path.join(ftp_origin, "y_data")
-
-mut_fn = "cancer_mutation.txt"
-mut_cnt_fn = "cancer_mutation_count.txt"
-exp_fn = "cancer_gene_expression.txt"
-cn_fn = "cancer_copy_number.txt"
-resp_fn = "response.txt"
-drug_smile_fn = "drug_SMILES.txt"
-
-data_root_dir = "/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator/csa_data"
-
-
 ###########################################################################################
 # download data
 ###########################################################################################
@@ -107,22 +113,44 @@ def hugo_to_ncbi_map(fn):
     return hugo_map
 
 
+def convert_float(val_list, datatype=float):
+    import math
+    newlist = []
+    for i in val_list:
+        x = datatype(i)
+        if not math.isnan(x):
+            newlist.append(x)
+        else:
+            print("Detected nan values: %s" % str(i))
+            newlist.append(0)
+        # else:
+        #     print("Not numeric: %s" %str(i))
+        #     newlist.append(0)
+    return newlist
+
+
+start = time.time()
 
 ###########################################################################################
 # save drug_feature_graph.npy
 ###########################################################################################
+drug_feature_graph_fn = os.path.join(data_root_dir, "drug_feature_graph.pkl")
+
 drug_smile = load_smiles_data()
 dr_df = load_single_drug_response_data(source="y_data")
-save_to_fn = os.path.join(data_root_dir, "drug_feature_graph.pkl")
+dr_df = dr_df[dr_df["ic50"].notna()]
 
-if not os.path.exists(save_to_fn):
-    drug_dict = save_drug2graph(drug_smile, save_to_fn)
+if REGENERATE_ALL and os.path.exists(drug_feature_graph_fn):
+    os.remove(drug_feature_graph_fn)
+
+if not os.path.exists(drug_feature_graph_fn):
+    drug_dict = save_drug2graph(drug_smile, drug_feature_graph_fn)
 else:
-    if ".pkl" == os.path.splitext(save_to_fn)[1]:
-        with open(save_to_fn, 'rb') as ffp:
+    if ".pkl" == os.path.splitext(drug_feature_graph_fn)[1]:
+        with open(drug_feature_graph_fn, 'rb') as ffp:
             drug_dict = pickle.load(ffp)
-    elif ".npy" == os.path.splitext(save_to_fn)[1]:
-        drug_dict = np.load(save_to_fn, allow_pickle=True).item()
+    elif ".npy" == os.path.splitext(drug_feature_graph_fn)[1]:
+        drug_dict = np.load(drug_feature_graph_fn, allow_pickle=True).item()
     else:
         Exception("does not support this file format for drug graph")
 # for debug
@@ -131,6 +159,11 @@ selected_drugs = list(set(merge_1["improve_chem_id"]))
 print("Number of drugs: %d" % len(selected_drugs))
 improve_sample_id = list(set(dr_df['improve_sample_id']))
 print("Number of cell lines: %d" % len(improve_sample_id))
+
+drug_response_with_IC50_fn = os.path.join(data_root_dir, 'drug_response_with_IC50.csv')
+if REGENERATE_ALL and os.path.exists(drug_response_with_IC50_fn):
+    os.remove(drug_response_with_IC50_fn)
+merge_1.to_csv(drug_response_with_IC50_fn, index=False)
 ###########################################################################################
 # 1. select related genes based on protein-protein interaction (PPI) scores
 # 2. create graph to represent cell lines, each node is a gene:
@@ -142,6 +175,15 @@ thresh = 0.95
 cell_dict_save_to = os.path.join(data_root_dir, 'cell_feature_all.pkl')
 edge_index_fn = os.path.join(data_root_dir, 'edge_index_PPI_{}.npy'.format(thresh))
 selected_gene_fn = os.path.join(data_root_dir, 'selected_gen_PPI_{}.pkl'.format(thresh))
+
+if REGENERATE_ALL:
+    if os.path.exists(cell_dict_save_to):
+        os.remove(cell_dict_save_to)
+    if os.path.exists(edge_index_fn):
+        os.remove(edge_index_fn)
+    if os.path.exists(selected_gene_fn):
+        os.remove(selected_gene_fn)
+
 if os.path.exists(cell_dict_save_to) and os.path.exists(edge_index_fn) and os.path.exists(selected_gene_fn):
     fp = open(cell_dict_save_to, "rb")
     cell_dict = pickle.load(fp)
@@ -174,14 +216,14 @@ else:
         selected_gene_tmp.add(ensp_map[i[0]])
         selected_gene_tmp.add(ensp_map[i[1]])
 
-
     # level_map = {"Ensembl": 0, "Entrez": 1, "Gene_Symbol": 2}
     print("\t\treading gene expression data")
     exp_df = pd.read_csv(improve_globals.gene_expression_file_path, sep="\t", index_col=0, header=2, low_memory=False)
     print("\t\treading gene copy number variation data")
     cn_df = pd.read_csv(improve_globals.copy_number_file_path, sep="\t", index_col=0, header=1, low_memory=False)
     print("\t\treading gene mutation data")
-    mu_df = pd.read_csv(improve_globals.gene_mutation_file_path, sep="\t", index_col=0, header=0, low_memory=False)
+    mu_df = pd.read_csv(improve_globals.gene_mutation_file_path, sep="\t", index_col=0, skiprows=[0, 2],
+                        low_memory=False)
 
     exp_df_keys = set(exp_df.keys())
     cn_df_keys = set(cn_df.keys())
@@ -196,23 +238,39 @@ else:
 
     cell_exp_df = exp_df[selected_gene]
     cell_exp = cell_exp_df.iloc[0:]
+    cell_exp.fillna(0, inplace=True)  # impute missing values
     cell_cn_df = cn_df[selected_gene]
     cell_cn = cell_cn_df.iloc[1:]
+    cell_cn.fillna(0, inplace=True)  # impute missing values
 
     cell_mu_df = mu_df[selected_gene]
     # cell_mu = cell_mu_df.iloc[11:]
     cell_mu = cell_mu_df.iloc[0:]
+    cell_mu.fillna(0, inplace=True)  # impute missing values
 
-    cell_line_ids = list(cell_exp.index)
-    cell_dict = {}   # key: cell_line_name; value: features of selected genes
+    index = cell_exp.index
+    columns = cell_exp.columns
+
+    scaler = StandardScaler()
+    exp = scaler.fit_transform(cell_exp)
+    cn = scaler.fit_transform(cell_cn)
+    # me = scaler.fit_transform(me)
+
+    imp_mean = SimpleImputer()
+    exp = imp_mean.fit_transform(exp)
+
+    # cell_line_ids = list(cell_exp.index)
+    cell_line_ids = improve_sample_id
+
+    cell_dict = {}  # key: cell_line_name; value: features of selected genes
     for cl_df in enumerate(cell_line_ids):
         cl = list(cl_df)[1]
         exp = list(cell_exp.loc[cl])
         cn = list(cell_cn.loc[cl])
         mu = list(cell_mu.loc[cl])
-        exp = [float(i) for i in exp]
-        cn = [float(i) for i in cn]
-        mu = [float(i) for i in mu]
+        exp = convert_float(exp)
+        cn = convert_float(cn)
+        mu = convert_float(mu)
         cell_dict[cl] = Data(x=torch.tensor(np.array([exp, cn, mu]).T, dtype=torch.float))
 
     fp = open(cell_dict_save_to, "wb")  # save gene features for cell lines
@@ -223,7 +281,7 @@ else:
     edge_list = [[ensp_map[edge[0]], ensp_map[edge[1]]] for edge in edge_list if
                  edge[0] in ensp_map.keys() and edge[1] in ensp_map.keys()]
 
-    edge_index = []   # connections between genes. The values are index of selected genes.
+    edge_index = []  # connections between genes. The values are index of selected genes.
     for i in edge_list:
         if (i[0] in gene_list) & (i[1] in gene_list):
             edge_index.append((gene_list.index(i[0]), gene_list.index(i[1])))
@@ -232,7 +290,12 @@ else:
     edge_index = np.array(edge_index, dtype=np.int64).T
 
     # save edge_index
-    print("Average degree of gene graph for cell lines: %f (combined score threshold:%f)" % (len(edge_index[0]) / len(gene_list), thresh))
+    print("Average degree of gene graph for cell lines: %f (combined score threshold:%f)" % (
+    len(edge_index[0]) / len(gene_list), thresh))
     np.save(edge_index_fn, edge_index)
+
+end = time.time()
+print("Excution time:")
+print(end - start)
 
 print("done")
