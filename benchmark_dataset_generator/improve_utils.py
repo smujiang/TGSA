@@ -1,13 +1,12 @@
-import numpy as np
 from pathlib import Path, PosixPath
 from typing import List, Union
-
+import os
 import numpy as np
 import pandas as pd
 from math import sqrt
 from scipy import stats
 
-fdir = Path(__file__).resolve().parent
+# fdir = Path(__file__).resolve().parent
 
 
 # -----------------------------------------------------------------------------
@@ -18,7 +17,7 @@ fdir = Path(__file__).resolve().parent
 # For example:
 # GraphDRP/
 # |_______ preprocess.py
-# |_______ improve_utils.py
+# |_______ my_improve_utils.py
 # |
 # | 
 # -----------------------------------------------------------------------------
@@ -35,7 +34,7 @@ improve_globals = types.SimpleNamespace()
 # TODO:
 # This is CANDLE_DATA_DIR (or something...).
 # How this is going to be passed to the code?
-improve_globals.main_data_dir = fdir/"csa_data"
+# improve_globals.main_data_dir = os.path.join(fdir, "csa_data")
 # improve_globals.main_data_dir = fdir/"improve_data_dir"
 # imp_globals.main_data_dir = fdir/"candle_data_dir"
 
@@ -62,46 +61,64 @@ improve_globals.drug_col_name = "improve_chem_id"    # column name that contains
 improve_globals.source_col_name = "source"           # column name that contains source/study names (CCLE, GDSCv1, etc.)
 improve_globals.pred_col_name_suffix = "_pred"            # suffix to predictions col name (example of final col name: auc_pred)
 
-# Response data file name
-improve_globals.y_file_name = "response.txt"  # response data
+# Modify accordingly for different datasets
+improve_globals.DATASET = "Pilot1" # Yitan's dataset
+# improve_globals.DATASET = "Benchmark" # Alex's dataset
 
-# Cancer sample features file names
-improve_globals.copy_number_fname = "cancer_copy_number.txt"  # cancer feature
-improve_globals.discretized_copy_number_fname = "cancer_discretized_copy_number.txt"  # cancer feature
-improve_globals.dna_methylation_fname = "cancer_DNA_methylation.txt"  # cancer feature
-improve_globals.gene_expression_fname = "cancer_gene_expression.txt"  # cancer feature
-improve_globals.gene_mutation_fname = "cancer_mutation.txt"  # cancer feature
+if improve_globals.DATASET == "Pilot1":
+    fdir = "/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_pilot1_generator"
+
+    improve_globals.y_file_name = "response.tsv"  # response data
+    improve_globals.copy_number_fname = "cancer_copy_number.tsv"  # cancer feature
+    improve_globals.gene_expression_fname = "cancer_gene_expression.tsv"
+    improve_globals.gene_mutation_fname = "cancer_mutation_count.tsv"  # cancer feature
+    # improve_globals.gene_mutation_fname = "cancer_mutation.parquet"  # cancer feature
+    improve_globals.smiles_file_name = "drug_SMILES.tsv"
+else:
+    fdir = "/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator"
+    improve_globals.y_file_name = "response.txt"  # response data
+    # Cancer sample features file names
+    improve_globals.copy_number_fname = "cancer_copy_number.txt"  # cancer feature
+    improve_globals.discretized_copy_number_fname = "cancer_discretized_copy_number.txt"  # cancer feature
+    improve_globals.dna_methylation_fname = "cancer_DNA_methylation.txt"  # cancer feature
+    improve_globals.gene_expression_fname = "cancer_gene_expression.txt"  # cancer feature
+    improve_globals.gene_mutation_fname = "cancer_mutation_count.txt"  # cancer feature
+    # improve_globals.gene_mutation_fname = "cancer_mutation.txt"  # cancer feature
+    improve_globals.smiles_file_name = "drug_SMILES.txt"  # drug feature
+
+improve_globals.main_data_dir = os.path.join(fdir, "csa_data")
+
 # TODO: add the other omics types
 # ...
 # ...
 # ...
 
 # Drug features file names
-improve_globals.smiles_file_name = "drug_SMILES.txt"  # drug feature
+improve_globals.dna_methylation_fname = "cancer_DNA_methylation.txt"  # cancer feature
 improve_globals.mordred_file_name = "drug_mordred.txt"  # drug feature
 improve_globals.ecfp4_512bit_file_name = "drug_ecfp4_512bit.txt"  # drug feature
 
 # Globals derived from the ones defined above
-improve_globals.raw_data_dir = improve_globals.main_data_dir/improve_globals.raw_data_dir_name # raw_data
-improve_globals.ml_data_dir = improve_globals.main_data_dir/improve_globals.ml_data_dir_name # ml_data
-improve_globals.x_data_dir   = improve_globals.raw_data_dir/improve_globals.x_data_dir_name    # x_data
-improve_globals.y_data_dir   = improve_globals.raw_data_dir/improve_globals.y_data_dir_name    # y_data
-improve_globals.splits_dir   = improve_globals.raw_data_dir/improve_globals.splits_dir_name    # splits
-improve_globals.models_dir   = improve_globals.raw_data_dir/improve_globals.models_dir_name    # models
-improve_globals.infer_dir    = improve_globals.raw_data_dir/improve_globals.infer_dir_name     # infer
+improve_globals.raw_data_dir = os.path.join(improve_globals.main_data_dir, improve_globals.raw_data_dir_name) # raw_data
+improve_globals.ml_data_dir = os.path.join(improve_globals.main_data_dir, improve_globals.ml_data_dir_name) # ml_data
+improve_globals.x_data_dir   = os.path.join(improve_globals.raw_data_dir, improve_globals.x_data_dir_name)    # x_data
+improve_globals.y_data_dir   = os.path.join(improve_globals.raw_data_dir, improve_globals.y_data_dir_name)    # y_data
+improve_globals.splits_dir   = os.path.join(improve_globals.raw_data_dir, improve_globals.splits_dir_name)    # splits
+improve_globals.models_dir   = os.path.join(improve_globals.raw_data_dir, improve_globals.models_dir_name)    # models
+improve_globals.infer_dir    = os.path.join(improve_globals.raw_data_dir, improve_globals.infer_dir_name)     # infer
 
-improve_globals.y_file_path = improve_globals.y_data_dir/improve_globals.y_file_name           # response.txt
-improve_globals.copy_number_file_path = improve_globals.x_data_dir/improve_globals.copy_number_fname  # cancer_copy_number.txt
-improve_globals.dna_methylation_file_path = improve_globals.x_data_dir/improve_globals.dna_methylation_fname  # cancer_DNA_methylation.txt
-improve_globals.gene_expression_file_path = improve_globals.x_data_dir/improve_globals.gene_expression_fname  # cancer_gene_expression.txt
-improve_globals.gene_mutation_file_path = improve_globals.x_data_dir/improve_globals.gene_mutation_fname
+improve_globals.y_file_path = os.path.join(improve_globals.y_data_dir, improve_globals.y_file_name)           # response.txt
+improve_globals.copy_number_file_path = os.path.join(improve_globals.x_data_dir, improve_globals.copy_number_fname)  # cancer_copy_number.txt)
+improve_globals.dna_methylation_file_path = os.path.join(improve_globals.x_data_dir, improve_globals.dna_methylation_fname)  # cancer_DNA_methylation.txt
+improve_globals.gene_expression_file_path = os.path.join(improve_globals.x_data_dir, improve_globals.gene_expression_fname)  # cancer_gene_expression.txt
+improve_globals.gene_mutation_file_path = os.path.join(improve_globals.x_data_dir, improve_globals.gene_mutation_fname)
 # TODO: add the other omics types
 # ...
 # ...
 # ...
-improve_globals.smiles_file_path = improve_globals.x_data_dir/improve_globals.smiles_file_name  # 
-improve_globals.mordred_file_path = improve_globals.x_data_dir/improve_globals.mordred_file_name  # 
-improve_globals.ecfp4_512bit_file_path = improve_globals.x_data_dir/improve_globals.ecfp4_512bit_file_name  # 
+improve_globals.smiles_file_path = os.path.join(improve_globals.x_data_dir, improve_globals.smiles_file_name)  #
+improve_globals.mordred_file_path = os.path.join(improve_globals.x_data_dir, improve_globals.mordred_file_name)  #
+improve_globals.ecfp4_512bit_file_path = os.path.join(improve_globals.x_data_dir, improve_globals.ecfp4_512bit_file_name)  #
 # -----------------------------------------------------------------------------
 
 
@@ -602,10 +619,10 @@ def get_common_samples(df1: pd.DataFrame, df2: pd.DataFrame, ref_col: str):
     # TODO: consider making this an IMPROVE func
     common_ids = list(set(df1[ref_col]).intersection(df2[ref_col]))
     # print(df1.shape)
-    df1 = df1[ df1[imp_globals.canc_col_name].isin(common_ids) ]
+    df1 = df1[ df1[improve_globals.canc_col_name].isin(common_ids) ]
     # print(df1.shape)
     # print(df2.shape)
-    df2 = df2[ df2[imp_globals.canc_col_name].isin(common_ids) ]
+    df2 = df2[ df2[improve_globals.canc_col_name].isin(common_ids) ]
     # print(df2.shape)
     return df1, df2
 
