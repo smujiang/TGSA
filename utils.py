@@ -37,6 +37,7 @@ def train(model, loader, criterion, opt, device):
 
     for idx, data in enumerate(tqdm(loader, desc='Iteration')):
         drug, cell, label = data
+        # label = torch.tensor(label, dtype=torch.long, device=device)
         if isinstance(cell, list):
             drug, cell, label = drug.to(device), [feat.to(device) for feat in cell], label.to(device)
         else:
@@ -146,15 +147,14 @@ def gradient(model, drug_name, cell_name, drug_dict, cell_dict, edge_index, args
 #         torch.cuda.empty_cache()
 #     writer.close()
 #
-        
 class MyDataset(Dataset):
     def __init__(self, drug_dict, cell_dict, IC, edge_index):
         super(MyDataset, self).__init__()
         self.drug, self.cell = drug_dict, cell_dict
         IC.reset_index(drop=True, inplace=True)  # train_test_split之后，数据集的index混乱，需要reset
-        self.drug_name = IC['improve_chem_id']
-        self.Cell_line_name = IC['improve_sample_id']
-        self.value = IC['ic50']
+        self.drug_name = IC['Drug name']
+        self.Cell_line_name = IC['DepMap_ID']
+        self.value = IC['IC50']
         self.edge_index = torch.tensor(edge_index, dtype=torch.long)
 
     def __len__(self):
@@ -171,9 +171,9 @@ class MyDataset_CDR(Dataset):
         super().__init__()
         self.drug, self.cell = drug_dict, cell_dict
         IC.reset_index(drop=True, inplace=True)  # train_test_split之后，数据集的index混乱，需要reset
-        self.drug_name = IC['improve_chem_id']
-        self.Cell_line_name = IC['improve_sample_id']
-        self.value = IC['ic50']
+        self.drug_name = IC['Drug name']
+        self.Cell_line_name = IC['DepMap_ID']
+        self.value = IC['IC50']
 
     def __len__(self):
         return len(self.value)
@@ -187,9 +187,9 @@ class MyDataset_name(Dataset):
         super().__init__()
         self.drug, self.cell = drug_dict, cell_dict
         IC.reset_index(drop=True, inplace=True)
-        self.drug_name = IC['improve_chem_id']
+        self.drug_name = IC['Drug name']
         self.Cell_line_name = IC['Cell line name']
-        self.value = IC['ic50']
+        self.value = IC['IC50']
 
     def __len__(self):
         return len(self.value)
@@ -243,73 +243,6 @@ def load_gene_data(IC, drug_dict, cell_dict, edge_index, setup, model, batch_siz
         train_set = IC[IC['Cell line name'].isin(train_cell['Cell line name'])]
         val_set = IC[IC['Cell line name'].isin(val_cell['Cell line name'])]
         test_set = IC[IC['Cell line name'].isin(test_cell['Cell line name'])]
-
-    else:
-        raise ValueError
-
-    if model == 'TCNN':
-        Dataset = MyDataset_name
-        collate_fn = None
-        train_dataset = Dataset(drug_dict, cell_dict, train_set)
-        val_dataset = Dataset(drug_dict, cell_dict, val_set)
-        test_dataset = Dataset(drug_dict, cell_dict, test_set)
-
-    elif model == 'GraphDRP':
-        Dataset = MyDataset_name
-        collate_fn = _collate_drp
-        train_dataset = Dataset(drug_dict, cell_dict, train_set)
-        val_dataset = Dataset(drug_dict, cell_dict, val_set)
-        test_dataset = Dataset(drug_dict, cell_dict, test_set)
-
-    elif model == 'DeepCDR':
-        Dataset = MyDataset_CDR
-        collate_fn = _collate_CDR
-        train_dataset = Dataset(drug_dict, cell_dict, train_set)
-        val_dataset = Dataset(drug_dict, cell_dict, val_set)
-        test_dataset = Dataset(drug_dict, cell_dict, test_set)
-
-    else:
-        Dataset = MyDataset
-        collate_fn = _collate
-        train_dataset = Dataset(drug_dict, cell_dict, train_set, edge_index=edge_index)
-        val_dataset = Dataset(drug_dict, cell_dict, val_set, edge_index=edge_index)
-        test_dataset = Dataset(drug_dict, cell_dict, test_set, edge_index=edge_index)
-
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn,
-                              num_workers=4
-                              )
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn,
-                            num_workers=4
-                            )
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn,
-                             num_workers=4)
-
-    return train_loader, val_loader, test_loader
-
-
-def load_IMPROVE_data(IC, drug_dict, cell_dict, edge_index, setup, model, batch_size):
-    if setup == 'known':
-        train_set, val_test_set = train_test_split(IC, test_size=0.2, random_state=42, stratify=IC['improve_sample_id'])
-        val_set, test_set = train_test_split(val_test_set, test_size=0.5, random_state=42,
-                                             stratify=val_test_set['improve_sample_id'])
-
-    elif setup == 'leave_drug_out':
-        ## scaffold
-        smiles_list = pd.read_csv('/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator/csa_data/raw_data/x_data/drug_smiles.csv')[
-            ['canSMILES', 'improve_chem_id']]
-        train_set, val_set, test_set = scaffold_split(IC, smiles_list, seed=42)
-
-    elif setup == 'leave_cell_out':
-        ## stratify
-        cell_info = IC[['source', 'improve_sample_id']].drop_duplicates()
-        train_cell, val_test_cell = train_test_split(cell_info, stratify=cell_info['source'], test_size=0.4,
-                                                     random_state=42)
-        val_cell, test_cell = train_test_split(val_test_cell, stratify=val_test_cell['source'], test_size=0.5,
-                                               random_state=42)
-
-        train_set = IC[IC['improve_sample_id'].isin(train_cell['improve_sample_id'])]
-        val_set = IC[IC['improve_sample_id'].isin(val_cell['improve_sample_id'])]
-        test_set = IC[IC['improve_sample_id'].isin(test_cell['improve_sample_id'])]
 
     else:
         raise ValueError
@@ -548,7 +481,7 @@ def get_idx_split_drug(dataset, k_splits=5):
     return split_idx
 
 
-class EarlyStopping():
+class EarlyStopping:
     """
     Parameters
     ----------
