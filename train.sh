@@ -1,1 +1,1 @@
-python candle_train.py
+python /usr/local/TGSA/candle_train.py

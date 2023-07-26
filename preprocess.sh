@@ -1,1 +1,1 @@
-python pilot_preprocessing.py
+python /usr/local/TGSA/pilot_preprocessing.py
