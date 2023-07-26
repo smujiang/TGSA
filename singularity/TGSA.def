@@ -48,7 +48,7 @@ From: pytorch/pytorch:1.9.0-cuda10.2-cudnn7-runtime
     wget https://data.pyg.org/whl/torch-1.6.0%2Bcu102/torch_sparse-0.6.8-cp38-cp38-linux_x86_64.whl
     wget https://data.pyg.org/whl/torch-1.6.0%2Bcu102/torch_spline_conv-1.2.1-cp38-cp38-linux_x86_64.whl
 
-
+    pip install *.whl
     conda env create -f TGSA/singularity/TGSA.yml
     conda activate /usr/local/envs/TGSA
 
