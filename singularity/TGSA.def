@@ -42,6 +42,13 @@ From: pytorch/pytorch:1.9.0-cuda10.2-cudnn7-runtime
     cd /usr/local/
     git clone -b develop https://github.com/smujiang/TGSA.git
 
+    pip install torch-geometric==1.7.1
+    wget https://data.pyg.org/whl/torch-1.6.0%2Bcu102/torch_cluster-1.5.7-cp38-cp38-linux_x86_64.whl
+    wget https://data.pyg.org/whl/torch-1.6.0%2Bcu102/torch_scatter-2.0.5-cp38-cp38-linux_x86_64.whl
+    wget https://data.pyg.org/whl/torch-1.6.0%2Bcu102/torch_sparse-0.6.8-cp38-cp38-linux_x86_64.whl
+    wget https://data.pyg.org/whl/torch-1.6.0%2Bcu102/torch_spline_conv-1.2.1-cp38-cp38-linux_x86_64.whl
+
+
     conda env create -f TGSA/singularity/TGSA.yml
     conda activate /usr/local/envs/TGSA
 

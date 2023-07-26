@@ -202,12 +202,12 @@ dependencies:
       - tensorboard-plugin-wit==1.8.1
       - threadpoolctl==3.1.0
       - tomli==2.0.1
-      - torch==1.9.0
-      - torch-cluster==1.5.9
-      - torch-geometric==1.7.1
-      - torch-scatter==2.0.9
-      - torch-sparse==0.6.12
-      - torch-spline-conv==1.2.1
+#      - torch==1.9.0
+#      - torch-cluster==1.5.9
+#      - torch-geometric==1.7.1
+#      - torch-scatter==2.0.9
+#      - torch-sparse==0.6.12
+#      - torch-spline-conv==1.2.1
       - torchaudio==0.9.0
       - torchsummary==1.5.1
       - torchvision==0.10.0
