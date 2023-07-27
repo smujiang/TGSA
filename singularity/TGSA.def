@@ -17,10 +17,13 @@ From: pytorch/pytorch:1.9.0-cuda10.2-cudnn7-runtime
     apt-get install -y git
     apt-get install -y wget
     apt-get install -y gnupg
+    apt-get install -y g++
     #apt-key adv --keyserver keyserver.ubuntu.com --keyserver-options http-proxy=http://proxy.alcf.anl.gov:3128 --recv-keys F60F4B3D7FA2AF80
     #apt-key adv --keyserver keyserver.ubuntu.com --keyserver-options http-proxy=http://proxy.alcf.anl.gov:3128 --recv-keys A4B469963BF863CC
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F60F4B3D7FA2AF80
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A4B469963BF863CC
+    #apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F60F4B3D7FA2AF80
+    #apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A4B469963BF863CC
     #apt-get update
     #apt-get install -y git
     #apt-get install -y wget
@@ -37,14 +40,19 @@ From: pytorch/pytorch:1.9.0-cuda10.2-cudnn7-runtime
     # install python modules and model prerequisites
     pip install git+https://github.com/ECP-CANDLE/candle_lib@develop
 
+    #pip install CPython==3.8.0
     pip install torch-geometric==1.7.1
-    wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_cluster-1.5.9-cp38-cp38-linux_x86_64.whl
-    wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_scatter-2.0.9-cp38-cp38-linux_x86_64.whl
-    wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_sparse-0.6.12-cp38-cp38-linux_x86_64.whl
-    wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_spline_conv-1.2.1-cp38-cp38-linux_x86_64.whl
-    pip install *.whl
+    pip install torch_cluster==1.5.9
+    pip install torch_scatter==2.0.9
+    pip install torch_sparse==0.6.12
+    pip install torch_spline_conv==1.2.1
+    #wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_cluster-1.5.9-cp38-cp38-linux_x86_64.whl
+    #wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_scatter-2.0.9-cp38-cp38-linux_x86_64.whl
+    #wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_sparse-0.6.12-cp38-cp38-linux_x86_64.whl
+    #wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_spline_conv-1.2.1-cp38-cp38-linux_x86_64.whl
+    #pip install *.whl
 
-    pip install torch==1.9.0+cu102 torchvision==0.10.0+cu102 torchaudio===0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+    #pip install torch==1.9.0+cu102 torchvision==0.10.0+cu102 torchaudio===0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
 
     pip install dgllife==0.3.2
     pip install dgl==0.9.0
@@ -55,7 +63,7 @@ From: pytorch/pytorch:1.9.0-cuda10.2-cudnn7-runtime
     pip install networkx==2.6.3
     pip install h5py==3.8.0
 
-    rm ./*.whl
+    #rm ./*.whl
 
     #conda env create -f TGSA/singularity/TGSA.yml
 
@@ -68,4 +76,3 @@ From: pytorch/pytorch:1.9.0-cuda10.2-cudnn7-runtime
     chmod +x TGSA/train.sh
     chmod +x TGSA/refer.sh
     chmod +x TGSA/preprocess.sh
-
