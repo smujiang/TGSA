@@ -9,6 +9,7 @@ rm config/improve.env
 rm definitions/*.def
 cp ../TGSA.def definitions/
 
+singularity exec --bind /home/ac.jjiang/data_dir/TGSA/benchmark_dataset_pilot1_generator:/candle_data_dir ./images/TGSA.sif python /usr/local/TGSA/train.py
 
 
 
