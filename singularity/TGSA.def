@@ -37,26 +37,31 @@ From: pytorch/pytorch:1.9.0-cuda10.2-cudnn7-runtime
     # install python modules and model prerequisites
     pip install git+https://github.com/ECP-CANDLE/candle_lib@develop
 
+    pip install torch-geometric==1.7.1
+    wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_cluster-1.5.9-cp38-cp38-linux_x86_64.whl
+    wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_scatter-2.0.9-cp38-cp38-linux_x86_64.whl
+    wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_sparse-0.6.12-cp38-cp38-linux_x86_64.whl
+    wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_spline_conv-1.2.1-cp38-cp38-linux_x86_64.whl
+    pip install *.whl
+
+    pip install torch==1.9.0+cu102 torchvision==0.10.0+cu102 torchaudio===0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+
+    pip install dgllife==0.3.2
+    pip install dgl==0.9.0
+    pip install numpy==1.21.5
+    pip install pandas==1.3.5
+    pip install scikit-learn==1.0.2
+    pip install scikit-image==0.16.2
+    pip install networkx==2.6.3
+    pip install h5py==3.8.0
+
+    rm ./*.whl
+
+    #conda env create -f TGSA/singularity/TGSA.yml
 
     # setup model and executables
     cd /usr/local/
     git clone -b develop https://github.com/smujiang/TGSA.git
-
-    pip install torch-geometric==1.7.1
-    wget https://data.pyg.org/whl/torch-1.6.0%2Bcu102/torch_cluster-1.5.7-cp38-cp38-linux_x86_64.whl
-    wget https://data.pyg.org/whl/torch-1.6.0%2Bcu102/torch_scatter-2.0.5-cp38-cp38-linux_x86_64.whl
-    wget https://data.pyg.org/whl/torch-1.6.0%2Bcu102/torch_sparse-0.6.8-cp38-cp38-linux_x86_64.whl
-    wget https://data.pyg.org/whl/torch-1.6.0%2Bcu102/torch_spline_conv-1.2.1-cp38-cp38-linux_x86_64.whl
-
-
-    pip install *.whl
-
-    pip install dgllife
-    pip install dgl
-    
-    conda env create -f TGSA/singularity/TGSA.yml
-    conda activate /usr/local/envs/TGSA
-
 
     chmod +x TGSA/train.sh
     chmod +x TGSA/refer.sh
