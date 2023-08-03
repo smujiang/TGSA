@@ -79,3 +79,4 @@ From: pytorch/pytorch:1.9.0-cuda10.2-cudnn7-runtime
     chmod +x /usr/local/TGSA/preprocess.sh
 
     export PATH=$PATH:/user/local/TGSA/
+    cd TGSA
