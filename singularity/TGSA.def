@@ -52,6 +52,7 @@ From: pytorch/pytorch:1.9.0-cuda10.2-cudnn7-runtime
     #wget https://data.pyg.org/whl/torch-1.9.0%2Bcu102/torch_spline_conv-1.2.1-cp38-cp38-linux_x86_64.whl
     #pip install *.whl
 
+    pip install rdkit
     #pip install torch==1.9.0+cu102 torchvision==0.10.0+cu102 torchaudio===0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
 
     pip install dgllife==0.3.2
@@ -69,10 +70,12 @@ From: pytorch/pytorch:1.9.0-cuda10.2-cudnn7-runtime
 
     # setup model and executables
     cd /usr/local/
-    git clone -b develop https://github.com/smujiang/TGSA.git
+    git clone https://github.com/smujiang/TGSA.git
 
     cp TGSA/data/enterez_NCBI_to_hugo_gene_symbol_march_2019.txt /candle_data_dir/
 
-    chmod +x TGSA/train.sh
-    chmod +x TGSA/refer.sh
-    chmod +x TGSA/preprocess.sh
+    chmod +x /usr/local/TGSA/train.sh
+    chmod +x /usr/local/TGSA/infer.sh
+    chmod +x /usr/local/TGSA/preprocess.sh
+
+    export PATH=$PATH:/user/local/TGSA/
