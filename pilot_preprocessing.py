@@ -1,5 +1,5 @@
 import candle
-from benchmark_dataset_generator.improve_utils import *
+import numpy as np
 import os, sys
 import pandas as pd
 from smiles2graph import smiles2graph
@@ -12,6 +12,7 @@ import time
 from torch_geometric.data import Data
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
+from benchmark_dataset_generator.improve_utils import *
 
 '''
 # Running notes
