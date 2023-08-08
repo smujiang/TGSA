@@ -128,10 +128,12 @@ def main():
     data_root_dir = improve_globals.main_data_dir
     if improve_globals.DATASET == "Pilot1":
         print("Training on Pilot1 dataset")
-        output_root_dir = "/infodev1/non-phi-data/junjiang/TGSA_output_pilot1"
+        output_root_dir = os.path.join(improve_globals.data_root_dir, "TGSA_output_pilot1")
+
     else:
         print("Training on Benchmark dataset")
-        output_root_dir = "/infodev1/non-phi-data/junjiang/TGSA_output"
+        output_root_dir = os.path.join(improve_globals.data_root_dir, "TGSA_output")
+
 
     if not os.path.exists(output_root_dir):
         os.makedirs(output_root_dir)

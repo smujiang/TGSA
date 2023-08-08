@@ -171,7 +171,6 @@ merge_1.to_csv(drug_response_with_IC50_fn, index=False)
 #       b. node features were expression level, copy number variation and mutation
 ###########################################################################################
 thresh = 0.95
-# save_to_dir = "/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator/csa_data"
 cell_dict_save_to = os.path.join(data_root_dir, 'cell_feature_all.pkl')
 edge_index_fn = os.path.join(data_root_dir, 'edge_index_PPI_{}.npy'.format(thresh))
 selected_gene_fn = os.path.join(data_root_dir, 'selected_gen_PPI_{}.pkl'.format(thresh))

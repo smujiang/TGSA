@@ -37,6 +37,8 @@ improve_globals = types.SimpleNamespace()
 # improve_globals.main_data_dir = os.path.join(fdir, "csa_data")
 # improve_globals.main_data_dir = fdir/"improve_data_dir"
 # imp_globals.main_data_dir = fdir/"candle_data_dir"
+improve_globals.data_root_dir = "/home/ac.jjiang/data_dir/TGSA"
+improve_globals.data_root_dir = "/infodev1/non-phi-projects/junjiang/TGSA"
 
 # Dir names corresponding to the primary input/output blocks in the pipeline
 # {}: input/output
@@ -66,7 +68,7 @@ improve_globals.DATASET = "Pilot1" # Yitan's dataset
 # improve_globals.DATASET = "Benchmark" # Alex's dataset
 
 if improve_globals.DATASET == "Pilot1":
-    fdir = "/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_pilot1_generator"
+    fdir = os.path.join(improve_globals.data_root_dir, "benchmark_dataset_pilot1_generator")
 
     improve_globals.y_file_name = "response.tsv"  # response data
     improve_globals.copy_number_fname = "cancer_copy_number.tsv"  # cancer feature
@@ -75,7 +77,8 @@ if improve_globals.DATASET == "Pilot1":
     # improve_globals.gene_mutation_fname = "cancer_mutation.parquet"  # cancer feature
     improve_globals.smiles_file_name = "drug_SMILES.tsv"
 else:
-    fdir = "/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator"
+    fdir = os.path.join(improve_globals.data_root_dir, "benchmark_dataset_generator")
+
     improve_globals.y_file_name = "response.txt"  # response data
     # Cancer sample features file names
     improve_globals.copy_number_fname = "cancer_copy_number.txt"  # cancer feature

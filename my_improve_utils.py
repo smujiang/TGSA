@@ -4,7 +4,7 @@ from utils import scaffold_split, _collate, _collate_drp, _collate_CDR
 from torch.utils.data import Dataset, DataLoader
 import os, datetime
 from sklearn.model_selection import train_test_split, KFold
-
+from benchmark_dataset_generator.improve_utils import *
 
 class IMPROVE_Dataset(Dataset):
     def __init__(self, drug_dict, cell_dict, IC, edge_index):
@@ -64,8 +64,7 @@ def load_IMPROVE_data(IC, drug_dict, cell_dict, edge_index, setup, model, batch_
     elif setup == 'leave_drug_out':
         ## scaffold
         smiles_list = pd.read_csv(
-            # '/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator/csa_data/raw_data/x_data/drug_smiles.csv')[
-            '/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_pilot1_generator/csa_data/raw_data/x_data/drug_smiles.csv')[
+            os.path.join(improve_globals.x_data_dir, "drug_smiles.csv"))[
             ['canSMILES', 'improve_chem_id']]
         train_set, val_set, test_set = scaffold_split(IC, smiles_list, seed=42)
 

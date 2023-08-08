@@ -33,12 +33,8 @@ print("Dataset:" + improve_globals.DATASET)
 print("data_root_dir:" + data_root_dir)
 
 if improve_globals.DATASET == "Pilot1":
-
-    # data_root_dir = "/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_pilot1_generator/csa_data"
     ftp_origin = "https://ftp.mcs.anl.gov/pub/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/raw_data"
 else:
-    # data_root_dir = "/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator/csa_data"
-    # ftp_origin = "https://ftp.mcs.anl.gov/pub/candle/public/improve/benchmarks/single_drug_drp/csa_data"
     ftp_origin = "https://ftp.mcs.anl.gov/pub/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-imp-2023"
 
 x_dir = os.path.join(ftp_origin, "x_data")
@@ -176,7 +172,6 @@ merge_1.to_csv(drug_response_with_IC50_fn, index=False)
 #       b. node features were expression level, copy number variation and mutation
 ###########################################################################################
 thresh = 0.95
-# save_to_dir = "/infodev1/non-phi-projects/junjiang/TGSA/benchmark_dataset_generator/csa_data"
 cell_dict_save_to = os.path.join(data_root_dir, 'cell_feature_all.pkl')
 edge_index_fn = os.path.join(data_root_dir, 'edge_index_PPI_{}.npy'.format(thresh))
 selected_gene_fn = os.path.join(data_root_dir, 'selected_gen_PPI_{}.pkl'.format(thresh))
