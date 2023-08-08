@@ -136,8 +136,9 @@ start = time.time()
 # save drug_feature_graph.npy
 ###########################################################################################
 drug_feature_graph_fn = os.path.join(data_root_dir, "drug_feature_graph.pkl")
-
+print("Load smiles data")
 drug_smile = load_smiles_data()
+print("Load single drug response data")
 dr_df = load_single_drug_response_data(source="y_data")
 dr_df = dr_df[dr_df["ic50"].notna()]
 
