@@ -248,10 +248,10 @@ else:
     cn_df_keys = set(cn_df.keys())
     # mu_df_keys = set(mu_df.keys())
     mu_df_keys = set(mu_df.keys())
-    selected_gene = mu_df_keys.intersection(cn_df_keys.intersection(exp_df_keys.intersection(selected_gene_tmp)))
-    gene_list = list(selected_gene)
+    selected_gene = list(mu_df_keys.intersection(cn_df_keys.intersection(exp_df_keys.intersection(selected_gene_tmp))))
+
     ############################## save selected gene and gene features for cell lines ########################
-    print("Number of selected gene: %d" % len(gene_list))
+    print("Number of selected gene: %d" % len(selected_gene))
     fp = open(selected_gene_fn, "wb")
     pickle.dump(selected_gene, fp)  # save selected gene names
     fp.close()
@@ -313,14 +313,14 @@ else:
 
     edge_index = []   # connections between genes. The values are index of selected genes.
     for i in edge_list:
-        if (i[0] in gene_list) & (i[1] in gene_list):
-            edge_index.append((gene_list.index(i[0]), gene_list.index(i[1])))
-            edge_index.append((gene_list.index(i[1]), gene_list.index(i[0])))
+        if (i[0] in selected_gene) & (i[1] in selected_gene):
+            edge_index.append((selected_gene.index(i[0]), selected_gene.index(i[1])))
+            edge_index.append((selected_gene.index(i[1]), selected_gene.index(i[0])))
     edge_index = list(set(edge_index))
     edge_index = np.array(edge_index, dtype=np.int64).T
 
     # save edge_index
-    print("Average degree of gene graph for cell lines: %f (combined score threshold:%f)" % (len(edge_index[0]) / len(gene_list), thresh))
+    print("Average degree of gene graph for cell lines: %f (combined score threshold:%f)" % (len(edge_index[0]) / len(selected_gene), thresh))
     np.save(edge_index_fn, edge_index)
 
 end = time.time()
