@@ -22,7 +22,7 @@ from benchmark_dataset_generator.improve_utils import *
 '''
 
 REGENERATE_ALL = True
-
+print("landmark 1")
 mut_fn = improve_globals.gene_mutation_fname
 exp_fn = improve_globals.gene_expression_fname
 cn_fn = improve_globals.copy_number_fname
@@ -32,7 +32,7 @@ drug_smile_fn = improve_globals.smiles_file_name
 data_root_dir = improve_globals.main_data_dir
 print("Dataset:" + improve_globals.DATASET)
 print("data_root_dir:" + data_root_dir)
-
+print("landmark 2")
 if improve_globals.DATASET == "Pilot1":
     ftp_origin = "https://ftp.mcs.anl.gov/pub/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/raw_data"
 else:
