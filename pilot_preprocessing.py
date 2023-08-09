@@ -271,7 +271,7 @@ else:
     cell_mu = cell_mu_df.iloc[0:]
     cell_mu.fillna(0)   #  impute missing values
 
-    cell_mu[cell_mu > 1] = 1
+    cell_mu[cell_mu > 1] = 1.0
 
     # cell_exp_index = set(cell_exp.index)
     # cell_cn_index = set(cell_cn.index)

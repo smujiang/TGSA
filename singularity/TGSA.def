@@ -9,8 +9,11 @@ From: pytorch/pytorch:1.9.0-cuda10.2-cudnn7-runtime
 
 %environment
         PATH=$PATH:/usr/local/TGSA
-        MODEL_DIR=/usr/local/TGDA_model
+        MODEL_DIR=/usr/local/TGSA_model
         CANDLE_DATA_DIR=/candle_data_dir
+
+        mkdir /usr/local/TGSA_model
+        mkdir /candle_data_dir
 
 %post
     apt-get update
