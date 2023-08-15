@@ -1,3 +1,5 @@
+import random
+
 import candle
 import numpy as np
 import os, sys
@@ -10,7 +12,7 @@ import pickle
 import torch
 import time
 from torch_geometric.data import Data
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.impute import SimpleImputer
 from benchmark_dataset_generator.improve_utils import *
 
@@ -140,7 +142,6 @@ print("Load smiles data")
 drug_smile = load_smiles_data()
 print("Load single drug response data")
 dr_df = load_single_drug_response_data(source="y_data")
-dr_df = dr_df[dr_df["ic50"].notna()]
 
 if REGENERATE_ALL and os.path.exists(drug_feature_graph_fn):
     os.remove(drug_feature_graph_fn)
@@ -161,11 +162,18 @@ selected_drugs = list(set(merge_1["improve_chem_id"]))
 print("Number of drugs: %d" % len(selected_drugs))
 improve_sample_id = list(set(dr_df['improve_sample_id']))
 print("Number of cell lines: %d" % len(improve_sample_id))
+ref_df = merge_1[merge_1['ic50'].astype(bool)]  # only keep the rows with IC50
+ref_df.loc[ref_df['ic50'].isna(), 'ic50'] = [random.uniform(0, 100) for i in range(ref_df['ic50'].isna().sum())]
+ref_df.loc[ref_df["ic50"] < 0, 'ic50'] = [0.0]*(ref_df['ic50'] < 0).sum()  # erase negative values
+# scale to 0~1
+x = np.array(ref_df["ic50"])
+ic50_scaled = (x-np.min(x))/(np.max(x)-np.min(x))
+ref_df.loc[:, "ic50"] = ic50_scaled
 
 drug_response_with_IC50_fn = os.path.join(data_root_dir, 'drug_response_with_IC50.csv')
 if REGENERATE_ALL and os.path.exists(drug_response_with_IC50_fn):
     os.remove(drug_response_with_IC50_fn)
-merge_1.to_csv(drug_response_with_IC50_fn, index=False)
+ref_df.to_csv(drug_response_with_IC50_fn, index=False)
 
 ###########################################################################################
 # 1. select related genes based on protein-protein interaction (PPI) scores
@@ -240,7 +248,7 @@ else:
     # mu_df_tmp.rename(columns=mu_df_tmp.iloc[0], inplace=True)
     # header_row = list(mu_df_tmp.iloc[0])
     # mu_df = pd.DataFrame(mu_df_tmp.values[1:], columns=header_row)
-    mu_df[mu_df > 1] = 1
+    mu_df[mu_df > 1] = 1.0
     duplicate_cols = mu_df.columns[mu_df.columns.duplicated()]
     mu_df.drop(columns=duplicate_cols, inplace=True)
 

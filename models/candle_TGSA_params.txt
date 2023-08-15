@@ -13,10 +13,10 @@ hidden_dim=8
 weight_decay=0
 dropout_ratio=0.2
 epochs=300
-patience=10
+patience=3
 edge=0.95
 setup='known'
-pretrain=1
+pretrain=0
 weight_path=''
 mode='train'
 

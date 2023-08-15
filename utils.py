@@ -35,6 +35,7 @@ with open(dict_dir + "drug_idx2name_dict", 'rb') as f:
 def train(model, loader, criterion, opt, device):
     model.train()
 
+    total_loss = torch.tensor(0.0).cuda(device)
     for idx, data in enumerate(tqdm(loader, desc='Iteration')):
         drug, cell, label = data
         # label = torch.tensor(label, dtype=torch.long, device=device)
@@ -42,14 +43,15 @@ def train(model, loader, criterion, opt, device):
             drug, cell, label = drug.to(device), [feat.to(device) for feat in cell], label.to(device)
         else:
             drug, cell, label = drug.to(device), cell.to(device), label.to(device)
+        opt.zero_grad()
         output = model(drug, cell)
         loss = criterion(output, label.view(-1, 1).float())
-        opt.zero_grad()
+        total_loss += loss
         loss.backward()
         opt.step()
-
-    print('Train Loss:{}'.format(loss))
-    return loss
+    rmse = torch.sqrt(total_loss / len(loader.dataset))
+    print('Train Loss:{}'.format(rmse))
+    return rmse
 
 
 def validate(model, loader, device):
@@ -58,7 +60,7 @@ def validate(model, loader, device):
     y_true = []
     y_pred = []
 
-    total_loss = 0
+    total_loss = torch.tensor(0.0).cuda(device)
     with torch.no_grad():
         for data in tqdm(loader, desc='Iteration'):
             drug, cell, label = data
@@ -73,7 +75,8 @@ def validate(model, loader, device):
 
     y_true = torch.cat(y_true, dim=0)
     y_pred = torch.cat(y_pred, dim=0)
-    rmse = torch.sqrt(total_loss / len(loader.dataset))
+    rmse = torch.sqrt(total_loss/len(loader.dataset))
+    n = len(loader.dataset)
     MAE = mean_absolute_error(y_true.cpu(), y_pred.cpu())
     r2 = r2_score(y_true.cpu(), y_pred.cpu())
     r = pearsonr(y_true.cpu().numpy().flatten(), y_pred.cpu().numpy().flatten())[0]
