@@ -21,16 +21,16 @@ from sklearn.metrics import r2_score, mean_absolute_error
 from scipy.stats import pearsonr
 from tqdm import tqdm
 
-dict_dir = './data/similarity_augment/dict/'
-with open(dict_dir + "cell_id2idx_dict", 'rb') as f:
-    cell_id2idx_dict = pickle.load(f)
-with open(dict_dir + "drug_name2idx_dict", 'rb') as f:
-    drug_name2idx_dict = pickle.load(f)
-with open(dict_dir + "cell_idx2id_dict", 'rb') as f:
-    cell_idx2id_dict = pickle.load(f)
-with open(dict_dir + "drug_idx2name_dict", 'rb') as f:
-    drug_idx2name_dict = pickle.load(f)
-
+# dict_dir = './data/similarity_augment/dict/'
+# with open(dict_dir + "cell_id2idx_dict", 'rb') as f:
+#     cell_id2idx_dict = pickle.load(f)
+# with open(dict_dir + "drug_name2idx_dict", 'rb') as f:
+#     drug_name2idx_dict = pickle.load(f)
+# with open(dict_dir + "cell_idx2id_dict", 'rb') as f:
+#     cell_idx2id_dict = pickle.load(f)
+# with open(dict_dir + "drug_idx2name_dict", 'rb') as f:
+#     drug_idx2name_dict = pickle.load(f)
+#
 
 def train(model, loader, criterion, opt, device):
     model.train()
@@ -769,7 +769,8 @@ class MyDataset_SA(Dataset):
         return len(self.value)
 
     def __getitem__(self, index):
-        return (drug_name2idx_dict[self.drug_name[index]], cell_id2idx_dict[self.Cell_line_name[index]], self.value[index])
+        # return (drug_name2idx_dict[self.drug_name[index]], cell_id2idx_dict[self.Cell_line_name[index]], self.value[index])
+        return []
     
     
 def load_data_SA(args):
@@ -788,7 +789,8 @@ def load_graph_data_SA(args):
     cell_name2feature_dict = np.load('./data/CellLines_DepMap/CCLE_580_18281/census_706/cell_feature_all.npy',
                                         allow_pickle=True).item()
     drug_name = pd.read_csv("./data/Drugs/drug_smiles.csv").iloc[:, 0]
-    cell_idx2feature_dict = {u: cell_name2feature_dict[v] for u, v in cell_idx2id_dict.items()}
+    # cell_idx2feature_dict = {u: cell_name2feature_dict[v] for u, v in cell_idx2id_dict.items()}
+    cell_idx2feature_dict = {}
     drug_idx2graph_dict = {u: drug_id2graph_dict[v] for u, v in enumerate(drug_name)}
     drug_graph = [u for _, u in drug_idx2graph_dict.items()]
     cell_graph = [u for _, u in cell_idx2feature_dict.items()]
