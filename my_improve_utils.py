@@ -13,8 +13,8 @@ class IMPROVE_Dataset(Dataset):
         IC.reset_index(drop=True, inplace=True)
         self.drug_name = IC['improve_chem_id']
         self.Cell_line_name = IC['improve_sample_id']
-        self.value = IC['ic50']
-        # self.value = IC['auc']
+        # self.value = IC['ic50']
+        self.value = IC['auc']
         self.edge_index = torch.tensor(edge_index, dtype=torch.long)
 
     def __len__(self):
