@@ -37,10 +37,10 @@ improve_globals = types.SimpleNamespace()
 # improve_globals.main_data_dir = os.path.join(fdir, "csa_data")
 # improve_globals.main_data_dir = fdir/"improve_data_dir"
 # imp_globals.main_data_dir = fdir/"candle_data_dir"
-# improve_globals.data_root_dir = "/home/ac.jjiang/data_dir/TGSA"
+improve_globals.data_root_dir = "/home/ac.jjiang/data_dir/TGSA"
 # improve_globals.data_root_dir = os.getenv("CANDLE_DATA_DIR")
 # improve_globals.data_root_dir = "/infodev1/non-phi-projects/junjiang/TGSA"
-improve_globals.data_root_dir = "/infodev1/non-phi-data/junjiang/TGSA"
+#improve_globals.data_root_dir = "/infodev1/non-phi-data/junjiang/TGSA"
 
 # Dir names corresponding to the primary input/output blocks in the pipeline
 # {}: input/output

@@ -47,7 +47,10 @@ def get_data_loader_pre_split(edge, batch_size):
     fp.close()
     IC = pd.read_csv(os.path.join(improve_globals.main_data_dir, 'drug_response_with_IC50.csv'), sep=",")
     # rs_df_split = load_single_drug_response_data("CCLE", split=1, split_type=["train", "val", "test"], y_col_name='auc')
-    rs_df_split = load_single_drug_response_data("CCLE", split=1, split_type=["test"], y_col_name='auc')
+    #rs_df_split = load_single_drug_response_data("CCLE", split=1, split_type=["test"], y_col_name='auc')
+    #rs_df_split = load_single_drug_response_data("gCSI", split=1, split_type=["test"], y_col_name='auc')
+    #rs_df_split = load_single_drug_response_data("GDSCv1", split=1, split_type=["test"], y_col_name='auc')
+    rs_df_split = load_single_drug_response_data("GDSCv2", split=1, split_type=["test"], y_col_name='auc')
 
     test_loader = load_IMPROVE_pre_split_data(rs_df_split, drug_dict, cell_dict, edge_index, batch_size)
     # train_loader, val_loader, test_loader = load_IMPROVE_data(IC, drug_dict, cell_dict, edge_index, setup, model,
