@@ -82,7 +82,7 @@ def run(gParameters):
     lr = gParameters["lr"] # 0.0001
     weight_decay = gParameters["weight_decay"] #0
     epochs = gParameters["epochs"] #300
-    patience = gParameters["patience"] #10
+    patience = gParameters["patience"] #3
     setup = gParameters["setup"] #'known'
     pretrain = gParameters["pretrain"] #1
     weight_path = gParameters["weight_path"] #''

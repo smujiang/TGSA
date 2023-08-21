@@ -38,8 +38,9 @@ improve_globals = types.SimpleNamespace()
 # improve_globals.main_data_dir = fdir/"improve_data_dir"
 # imp_globals.main_data_dir = fdir/"candle_data_dir"
 # improve_globals.data_root_dir = "/home/ac.jjiang/data_dir/TGSA"
-improve_globals.data_root_dir = os.getenv("CANDLE_DATA_DIR")
+# improve_globals.data_root_dir = os.getenv("CANDLE_DATA_DIR")
 # improve_globals.data_root_dir = "/infodev1/non-phi-projects/junjiang/TGSA"
+improve_globals.data_root_dir = "/infodev1/non-phi-data/junjiang/TGSA"
 
 # Dir names corresponding to the primary input/output blocks in the pipeline
 # {}: input/output
@@ -278,8 +279,8 @@ def load_split_file(
     # Check if the split file exists and load
     ids = []
     for st in split_type:
-        fpath = improve_globals.splits_dir/f"{source}_split_{split}_{st}.txt"
-        assert fpath.exists(), f"Splits file not found: {fpath}"
+        fpath = os.path.join(improve_globals.splits_dir, f"{source}_split_{split}_{st}.txt")
+        assert os.path.exists(fpath), f"Splits file not found: {fpath}"
         ids_ = pd.read_csv(fpath, header=None)[0].tolist()
         ids.extend(ids_)
     return ids

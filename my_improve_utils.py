@@ -13,8 +13,8 @@ class IMPROVE_Dataset(Dataset):
         IC.reset_index(drop=True, inplace=True)
         self.drug_name = IC['improve_chem_id']
         self.Cell_line_name = IC['improve_sample_id']
-        self.value = IC['ic50']
-        # self.value = IC['auc']
+        # self.value = IC['ic50']
+        self.value = IC['auc']
         self.edge_index = torch.tensor(edge_index, dtype=torch.long)
 
     def __len__(self):
@@ -56,6 +56,16 @@ class IMPROVE_Dataset_CDR(Dataset):
     def __getitem__(self, index):
         return (self.drug[self.drug_name[index]], self.cell[self.Cell_line_name[index]], self.value[index])
 
+def load_IMPROVE_pre_split_data(rs_df_split, drug_dict, cell_dict, edge_index, batch_size):
+    # rs_df = load_single_drug_response_data("CCLE", split=1, split_type=["test"], y_col_name='auc')
+    print(rs_df_split.size)
+    Dataset = IMPROVE_Dataset
+    collate_fn = _collate
+
+    rs_dataset = Dataset(drug_dict, cell_dict, rs_df_split, edge_index=edge_index)
+    rs_loader = DataLoader(rs_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn,
+                             num_workers=4)
+    return rs_loader
 
 def load_IMPROVE_data(IC, drug_dict, cell_dict, edge_index, setup, model, batch_size):
     if setup == 'known':
