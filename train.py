@@ -179,6 +179,7 @@ def main():
             print('Evaluating...')
             rmse, _, _, _ = validate(model, val_loader, args.device)
             print("Validation rmse:{}".format(rmse))
+            print("\nIMPROVE_RESULT val_loss:\t{}\n".format(rmse)) # to match the requirement of Hyper Parameter Optimization
             fitlog.add_metric({'val': {'RMSE': rmse}}, step=epoch)
 
             early_stop = stopper.step(rmse, model)
