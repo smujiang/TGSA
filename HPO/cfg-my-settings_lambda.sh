@@ -23,9 +23,7 @@ export TOURNSIZE=4
 # you can save there. If not, make a directory in /tmp or somewhere else you can write.
 
 # Lambda Settings
-# export CANDLE_CUDA_OFFSET=2
-# export CANDLE_DATA_DIR=/tmp/<user>/data_dir
+export CANDLE_CUDA_OFFSET=2
+#export CANDLE_DATA_DIR=/homes/ac.jjiang/data_dir
+export CANDLE_DATA_DIR=/candle_data_dir
 
-# Polaris Settings
- export QUEUE="debug"
- export CANDLE_DATA_DIR=/homes/ac.jjiang/data_dir
