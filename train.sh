@@ -63,6 +63,21 @@ fi
 
 export CANDLE_DATA_DIR=${CANDLE_DATA_DIR}
 
+FULL_DATA_DIR="$CANDLE_DATA_DIR/$MODEL_NAME/Data"
+echo $FULL_DATA_DIR
+
+if [ -d ${FULL_DATA_DIR} ]; then
+    if [ "$(ls -A ${FULL_DATA_DIR})" ] ; then
+	echo "using data from ${FULL_DATA_DIR}"
+    else
+	./candle_glue.sh
+	echo "using original data placed in ${FULL_DATA_DIR}"
+    fi
+else
+    ./candle_glue.sh
+    echo "using original data placed in ${FULL_DATA_DIR}"
+fi
+
 # Display runtime arguments
 echo "using CUDA_VISIBLE_DEVICES ${CUDA_VISIBLE_DEVICES}"
 echo "using CANDLE_DATA_DIR ${CANDLE_DATA_DIR}"
