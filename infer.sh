@@ -1,1 +1,1 @@
-python /usr/local/TGSA/test.py
+python test.py

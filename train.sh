@@ -5,7 +5,7 @@
 # arg 3 CANDLE_CONFIG
 
 # directly run on lambda0, add the following line
-# export CANDLE_DATA_DIR=/homes/ac.jjiang/data_dir/TGSA
+#export CANDLE_DATA_DIR=/path_to_data_dir/TGSA
 
 #
 ### Path to your CANDLEized model's main Python script###
