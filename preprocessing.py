@@ -159,6 +159,7 @@ selected_drugs = list(set(merge_1["improve_chem_id"]))
 print("Number of drugs: %d" % len(selected_drugs))
 improve_sample_id = list(set(dr_df['improve_sample_id']))
 print("Number of cell lines: %d" % len(improve_sample_id))
+cell_line_ids = improve_sample_id
 
 drug_response_with_IC50_fn = os.path.join(data_root_dir, 'drug_response_with_IC50.csv')
 if REGENERATE_ALL and os.path.exists(drug_response_with_IC50_fn):
@@ -194,6 +195,9 @@ if os.path.exists(cell_dict_save_to) and os.path.exists(edge_index_fn) and os.pa
 else:
     ##############################################################
     gene_fn = os.path.join(data_root_dir, "raw_data", "enterez_NCBI_to_hugo_gene_symbol_march_2019.txt")
+    if not os.path.exists(gene_fn):
+        src = ("./data/enterez_NCBI_to_hugo_gene_symbol_march_2019.txt")
+        shutil.copy(src, gene_fn)
 
     protein_info_gz_fn = os.path.join(data_root_dir, "raw_data", "x_data", "9606.protein.info.v11.5.txt.gz")
     protein_links_gz_fn = os.path.join(data_root_dir, "raw_data", "x_data", "9606.protein.links.detailed.v11.5.txt.gz")
@@ -219,10 +223,14 @@ else:
     print("\t\treading gene expression data")
     exp_df = pd.read_csv(improve_globals.gene_expression_file_path, sep="\t", index_col=0, header=2, low_memory=False)
     print("\t\treading gene copy number variation data")
-    cn_df = pd.read_csv(improve_globals.copy_number_file_path, sep="\t", index_col=0, header=1, low_memory=False)
+    cn_df = pd.read_csv(improve_globals.copy_number_file_path, sep="\t", index_col=0, skiprows=[0, 2], low_memory=False)
     print("\t\treading gene mutation data")
     mu_df = pd.read_csv(improve_globals.gene_mutation_file_path, sep="\t", index_col=0, skiprows=[0, 2],
                         low_memory=False)
+
+    # exp_df = exp_df.loc[cell_line_ids]
+    # cn_df = cn_df.loc[cell_line_ids]
+    # mu_df = mu_df.loc[cell_line_ids]
 
     exp_df_keys = set(exp_df.keys())
     cn_df_keys = set(cn_df.keys())
@@ -235,17 +243,21 @@ else:
     pickle.dump(selected_gene, fp)  # save selected gene names
     fp.close()
 
-    cell_exp_df = exp_df[selected_gene]
-    cell_exp = cell_exp_df.iloc[0:]
-    cell_exp.fillna(0, inplace=True)  # impute missing values
-    cell_cn_df = cn_df[selected_gene]
-    cell_cn = cell_cn_df.iloc[1:]
-    cell_cn.fillna(0, inplace=True)  # impute missing values
+    # cell_exp_df = exp_df[selected_gene]
+    # cell_exp = cell_exp_df.iloc[0:]
+    # cell_exp.fillna(0, inplace=True)  # impute missing values
+    # cell_cn_df = cn_df[selected_gene]
+    # cell_cn = cell_cn_df.iloc[1:]
+    # cell_cn.fillna(0, inplace=True)  # impute missing values
+    #
+    # cell_mu_df = mu_df[selected_gene]
+    # # cell_mu = cell_mu_df.iloc[11:]
+    # cell_mu = cell_mu_df.iloc[0:]
+    # cell_mu.fillna(0, inplace=True)  # impute missing values
 
-    cell_mu_df = mu_df[selected_gene]
-    # cell_mu = cell_mu_df.iloc[11:]
-    cell_mu = cell_mu_df.iloc[0:]
-    cell_mu.fillna(0, inplace=True)  # impute missing values
+    cell_exp = exp_df.loc[cell_line_ids][gene_list]
+    cell_mu = mu_df.loc[cell_line_ids][gene_list]
+    cell_cn = exp_df.loc[cell_line_ids][gene_list]
 
     index = cell_exp.index
     columns = cell_exp.columns
@@ -259,7 +271,6 @@ else:
     exp = imp_mean.fit_transform(exp)
 
     # cell_line_ids = list(cell_exp.index)
-    cell_line_ids = improve_sample_id
 
     cell_dict = {}  # key: cell_line_name; value: features of selected genes
     for cl_df in enumerate(cell_line_ids):
